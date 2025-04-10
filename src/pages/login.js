@@ -30,8 +30,8 @@ export function render(container) {
 
     try {
       // Firebase Authentication을 사용하여 로그인 요청
-      await signInWithEmailAndPassword(auth, email, password);
       errorMessageDiv.textContent = ""; // 에러 메시지 초기화
+      await signInWithEmailAndPassword(auth, email, password);
       window.location.hash = "/"; // 로그인 후 대시보드로 이동
     } catch (error) {
       // 로그인 실패 시 오류 메시지 표시

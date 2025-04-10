@@ -32,14 +32,15 @@ export function render(container) {
 
     // 비밀번호 확인
     if (password !== confirmPassword) {
-      alert("Passwords do not match. Please try again.");
+      errorMessageDiv.textContent =
+        "비밀번호가 일치하지 않습니다. 다시 입력해주세요."; // 비밀번호 불일치 에러 메시지
       return; // 비밀번호가 일치하지 않으면 회원가입 중단
     }
 
     try {
       // Firebase Authentication을 사용하여 회원가입 요청
-      await createUserWithEmailAndPassword(auth, email, password);
       errorMessageDiv.textContent = ""; // 에러 메시지 초기화
+      await createUserWithEmailAndPassword(auth, email, password);
       window.location.hash = "/login"; // 회원가입 후 로그인 페이지로 이동
     } catch (error) {
       // 회원가입 실패 시 오류 메시지 표시
