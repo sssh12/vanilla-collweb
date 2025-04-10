@@ -3,6 +3,7 @@ import {
   addDoc,
   getDocs,
   deleteDoc,
+  updateDoc,
   doc,
 } from "firebase/firestore";
 import { db } from "../../firebase/firestore.js";
@@ -27,7 +28,7 @@ export async function getSchedules() {
       ...doc.data(),
     }));
   } catch (error) {
-    console.error("Error fetching schedules: ", error);
+    console.error("Error fetching schedules:", error);
     throw new Error("Failed to fetch schedules.");
   }
 }
@@ -40,5 +41,17 @@ export async function deleteSchedule(id) {
   } catch (error) {
     console.error("Error deleting schedule: ", error);
     throw new Error("Failed to delete schedule.");
+  }
+}
+
+// Firestore에서 일정 업데이트
+export async function updateSchedule(id, updatedData) {
+  try {
+    const scheduleRef = doc(db, "schedules", id);
+    await updateDoc(scheduleRef, updatedData);
+    console.log("Document updated with ID: ", id);
+  } catch (error) {
+    console.error("Error updating schedule: ", error);
+    throw new Error("Failed to update schedule.");
   }
 }

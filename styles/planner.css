@@ -1,0 +1,67 @@
+/* 플래너 스타일 */
+.planner-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.planner-container h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.schedule-lists {
+  display: flex;
+  gap: 1rem;
+}
+
+.schedule-column {
+  flex: 1;
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 1rem;
+}
+
+.schedule-column h3 {
+  text-align: center;
+}
+
+.schedule-items {
+  min-height: 100px;
+  background-color: #f9f9f9;
+  border: 2px dashed #ccc;
+  padding: 1rem;
+  border-radius: 5px;
+}
+
+.schedule-items.dragover {
+  background-color: #e0ffe0;
+  border-color: #4caf50;
+}
+
+.schedule-item {
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  cursor: grab;
+}
+
+.schedule-item:active {
+  cursor: grabbing;
+}
+
+.delete-button {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background-color: #ff1a1a;
+}
