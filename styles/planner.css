@@ -1,75 +1,37 @@
-/* 플래너 스타일 */
+/* 플래너 컨테이너 스타일 */
 .planner-container {
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
+  padding: 1rem;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+
+  /* 화면 높이에 맞게 조정 */
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 120px); /* 헤더(60px) + 푸터(60px)를 제외한 높이 */
+  overflow: hidden; /* 기본적으로 스크롤 숨김 */
 }
 
-.planner-container h2 {
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
+/* 일정 목록 영역 */
 .schedule-lists {
+  flex: 1; /* 남은 공간을 차지 */
+  overflow-y: auto; /* 내용이 넘칠 때만 세로 스크롤 활성화 */
   display: flex;
   gap: 1rem;
+  margin-top: 1rem;
+  padding-right: 0.5rem; /* 스크롤바와 내용 간격 */
 }
 
+/* 각 일정 칼럼 */
 .schedule-column {
   flex: 1;
   background-color: #f9f9f9;
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 1rem;
-}
-
-.schedule-column h3 {
-  text-align: center;
-}
-
-.schedule-items {
-  min-height: 100px;
-  background-color: #f9f9f9;
-  border: 2px dashed #ccc;
-  padding: 1rem;
-  border-radius: 5px;
-}
-
-.schedule-items.dragover {
-  background-color: #e0ffe0;
-  border-color: #4caf50;
-}
-
-.schedule-item {
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
-  cursor: grab;
-}
-
-.schedule-item:active {
-  cursor: grabbing;
-}
-
-.delete-button {
-  background-color: #ff4d4d;
-  color: white;
-  border: none;
-  padding: 0.3rem 0.6rem;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.delete-button:hover {
-  background-color: #ff1a1a;
-}
-
-#schedule-form input[type="time"] {
-  width: 100%;
-  padding: 0.5rem;
-  margin: 0.5rem 0;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  min-height: 300px; /* 최소 높이 설정 */
+  overflow-y: auto; /* 칼럼 내부에서 스크롤 가능 */
 }

@@ -17,8 +17,36 @@ function loadCSS(filePath) {
   document.head.appendChild(link);
 }
 
+let isAuthInitialized = false;
+
+function initLogoutButton() {
+  if (isAuthInitialized) return; // 중복 초기화 방지
+  isAuthInitialized = true;
+
+  const logoutButton = document.getElementById("logout-button");
+  if (!logoutButton) return;
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      logoutButton.classList.remove("hidden");
+    } else {
+      logoutButton.classList.add("hidden");
+    }
+  });
+
+  logoutButton.addEventListener("click", async () => {
+    try {
+      await auth.signOut();
+      window.location.hash = "/login";
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  });
+}
+
 // 라우터 초기화 함수
 export function initRouter() {
+  initLogoutButton(); // 로그아웃 버튼 초기화
   window.addEventListener("hashchange", loadRoute);
   loadRoute();
 }

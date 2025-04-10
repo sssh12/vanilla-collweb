@@ -11,8 +11,19 @@ import { db } from "../../firebase/firestore.js";
 // Firestore에 일정 추가
 export async function addSchedule(schedule) {
   try {
+    // 중복 데이터 확인
+    const existingSchedules = await getSchedules();
+    const isDuplicate = existingSchedules.some(
+      (s) => s.title === schedule.title && s.date === schedule.date
+    );
+
+    if (isDuplicate) {
+      throw new Error("이미 동일한 일정이 존재합니다.");
+    }
+
     const docRef = await addDoc(collection(db, "schedules"), schedule);
     console.log("Document written with ID: ", docRef.id);
+    return docRef.id;
   } catch (error) {
     console.error("Error adding schedule: ", error);
     throw new Error("Failed to add schedule.");
