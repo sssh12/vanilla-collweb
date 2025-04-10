@@ -8,20 +8,24 @@ export function render(container) {
   // 대시보드 UI 생성
   container.innerHTML = `
     <h1>Welcome to the Dashboard</h1>
-    <p>Hello, ${user ? user.email : "Guest"}!</p>
-    <button id="logout-button">Log Out</button>
-    <a href="#/planner">Go to Planner</a>
+    <p>반갑습니다, ${user ? user.email : "Guest"}!</p>
+    <button id="logout-button">로그아웃</button>
+    <div id="error-message" style="color: red; margin-top: 10px;"></div> <!-- 에러 메시지 표시 영역 -->
+    <a href="#/planner">플래너</a>
   `;
 
   // 로그아웃 버튼 이벤트 리스너 추가
   const logoutButton = document.getElementById("logout-button");
+  const errorMessageDiv = document.getElementById("error-message");
+
   logoutButton.addEventListener("click", async () => {
     try {
+      errorMessageDiv.textContent = ""; // 에러 메시지 초기화
       await auth.signOut(); // Firebase 로그아웃
-      alert("You have been logged out.");
       window.location.hash = "/login"; // 로그아웃 후 로그인 페이지로 이동
     } catch (error) {
-      alert("Failed to log out: " + error.message);
+      // 로그아웃 실패 시 오류 메시지 표시
+      errorMessageDiv.textContent = `Error: ${error.message}`; // 에러 메시지 표시
     }
   });
 }
