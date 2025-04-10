@@ -26,32 +26,32 @@ export function render(container) {
       <h2>Planner</h2>
       <form id="schedule-form">
         <!-- 일정 제목 입력 -->
-        <input type="text" id="title" placeholder="Schedule Title" required />
+        <input type="text" id="title" placeholder="일정 제목" required />
         <!-- 일정 날짜 입력 -->
         <input type="date" id="date" required />
         <!-- 일정 시간 입력 -->
         <input type="time" id="time" required />
         <!-- 일정 우선순위 선택 -->
         <select id="priority" required>
-          <option value="High">High</option>
-          <option value="Medium">Medium</option>
-          <option value="Low">Low</option>
+          <option value="High">높음</option>
+          <option value="Medium">중간</option>
+          <option value="Low">낮음</option>
         </select>
         <!-- 일정 추가 버튼 -->
-        <button type="submit">Add Schedule</button>
+        <button type="submit">작성하기</button>
       </form>
       <!-- 일정 목록을 표시할 영역 -->
       <div class="schedule-lists">
         <div class="schedule-column" id="High-priority">
-          <h3>High Priority</h3>
+          <h3>중요도 높음</h3>
           <div class="schedule-items"></div>
         </div>
         <div class="schedule-column" id="Medium-priority">
-          <h3>Medium Priority</h3>
+          <h3>중요도 중간</h3>
           <div class="schedule-items"></div>
         </div>
         <div class="schedule-column" id="Low-priority">
-          <h3>Low Priority</h3>
+          <h3>중요도 낮음</h3>
           <div class="schedule-items"></div>
         </div>
       </div>

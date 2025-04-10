@@ -1,6 +1,6 @@
 /* 헤더 스타일 */
 header {
-  background-color: #495057; /* 차콜 그레이 */
+  background-color: #495057;
   color: white;
   padding: 1rem;
   display: flex;
@@ -18,7 +18,7 @@ header {
 
 /* 로그아웃 버튼 */
 header button {
-  background-color: #007bff; /* 차분한 블루 */
+  background-color: #007bff;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -28,13 +28,13 @@ header button {
 }
 
 header button:hover {
-  background-color: #0056b3; /* 더 어두운 블루 */
+  background-color: #0056b3;
 }
 
 header button:active {
-  background-color: #003f7f; /* 클릭 시 더 어두운 블루 */
+  background-color: #003f7f;
 }
 
 header button.hidden {
-  display: none; /* 숨김 처리 */
+  display: none;
 }

@@ -4,7 +4,7 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 1rem;
-  background-color: #ffffff; /* 흰색 배경 */
+  background-color: #ffffff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
 
@@ -28,7 +28,7 @@
 /* 각 일정 칼럼 */
 .schedule-column {
   flex: 1;
-  background-color: #f0f0f0; /* 연한 회색 */
+  background-color: #f0f0f0;
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 1rem;
@@ -57,7 +57,7 @@
 
 /* 버튼 스타일 */
 #schedule-form button {
-  background-color: #007bff; /* 차분한 블루 */
+  background-color: #007bff;
   color: white;
   border: none;
   cursor: pointer;
@@ -65,10 +65,10 @@
 }
 
 #schedule-form button:hover {
-  background-color: #0056b3; /* 더 어두운 블루 */
+  background-color: #0056b3;
 }
 
 #schedule-form button:active {
-  transform: scale(0.95); /* 크기를 살짝 줄여 클릭 효과 제공 */
-  background-color: #003f7f; /* 클릭 시 더 어두운 블루 */
+  transform: scale(0.95);
+  background-color: #003f7f;
 }
