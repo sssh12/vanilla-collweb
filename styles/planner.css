@@ -4,7 +4,7 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 1rem;
-  background-color: #ffffff;
+  background-color: #ffffff; /* 흰색 배경 */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
 
@@ -17,21 +17,58 @@
 
 /* 일정 목록 영역 */
 .schedule-lists {
-  flex: 1; /* 남은 공간을 차지 */
-  overflow-y: auto; /* 내용이 넘칠 때만 세로 스크롤 활성화 */
+  flex: 1;
+  overflow-y: auto;
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
-  padding-right: 0.5rem; /* 스크롤바와 내용 간격 */
+  padding-right: 0.5rem;
 }
 
 /* 각 일정 칼럼 */
 .schedule-column {
   flex: 1;
-  background-color: #f9f9f9;
+  background-color: #f0f0f0; /* 연한 회색 */
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 1rem;
-  min-height: 300px; /* 최소 높이 설정 */
-  overflow-y: auto; /* 칼럼 내부에서 스크롤 가능 */
+  min-height: 300px;
+  overflow-y: auto;
+}
+
+/* 일정 추가 폼 스타일 */
+#schedule-form {
+  display: flex;
+  flex-direction: row; /* 세로 정렬 */
+  gap: 1rem; /* 입력 필드 간 간격 */
+  margin: 0 auto; /* 가운데 정렬 */
+}
+
+/* 입력 필드 스타일 */
+#schedule-form input,
+#schedule-form select,
+#schedule-form button {
+  width: 100%; /* 입력 필드 너비를 폼에 맞춤 */
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+/* 버튼 스타일 */
+#schedule-form button {
+  background-color: #007bff; /* 차분한 블루 */
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#schedule-form button:hover {
+  background-color: #0056b3; /* 더 어두운 블루 */
+}
+
+#schedule-form button:active {
+  transform: scale(0.95); /* 크기를 살짝 줄여 클릭 효과 제공 */
+  background-color: #003f7f; /* 클릭 시 더 어두운 블루 */
 }

@@ -8,10 +8,10 @@ export function render(container) {
   // 대시보드 UI 생성
   container.innerHTML = `
     <div class="dashboard-container">
-      <h2>Welcome to the Dashboard</h2>
-      <p>반갑습니다, <span id="user-email">${
+      <img src="assets/images/logo.png" alt="Logo" class="dashboard-logo" />
+      <h2>반갑습니다, <span id="user-email">${
         user ? user.email : "Guest"
-      }</span>!</p>
+      }</span>!</h2>
       <a href="#/planner" class="link-button">Go to Planner</a>
     </div>
     <div id="error-message" style="color: red; margin-top: 10px;"></div> <!-- 에러 메시지 표시 영역 -->

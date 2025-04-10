@@ -7,7 +7,7 @@ export function setReminder(schedule) {
   const currentTime = Date.now();
 
   if (reminderTime <= currentTime) {
-    console.log("Reminder time is in the past. Skipping reminder.");
+    alert("알림 시간이 이미 지났습니다."); // 사용자에게 알림
     return;
   }
 

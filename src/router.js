@@ -11,10 +11,12 @@ const routes = {
 
 // CSS 동적 로드 함수
 function loadCSS(filePath) {
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = filePath;
-  document.head.appendChild(link);
+  if (!document.querySelector(`link[href="${filePath}"]`)) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = filePath;
+    document.head.appendChild(link);
+  }
 }
 
 let isAuthInitialized = false;
