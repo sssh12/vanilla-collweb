@@ -17,7 +17,26 @@ header {
   background-color: #4caf50;
   color: white;
   padding: 1rem;
-  text-align: center;
+  display: flex;
+  justify-content: space-between; /* 제목과 버튼을 양쪽 끝으로 배치 */
+  align-items: center; /* 수직 중앙 정렬 */
+}
+header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+header button {
+  background-color: white;
+  color: black;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+header button:hover {
+  background-color: #f1f1f1;
 }
 
 main {
@@ -29,7 +48,7 @@ main {
   align-items: center;
 }
 
-form#login-form {
+#login-form {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -41,21 +60,20 @@ form#login-form {
   padding: 2rem;
   border-radius: 5px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 300px;
 }
 
-form#signup-form {
+#signup-form {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
   max-width: 400px;
+  margin: 0 auto;
   background-color: white;
   padding: 2rem;
   border-radius: 5px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 300px;
 }
 
 input {
@@ -126,4 +144,57 @@ button:hover {
 
 .link-button:hover {
   background-color: #45a049;
+}
+
+/* 플래너 스타일 */
+.planner-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.planner-container h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.planner-container form {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 2rem;
+}
+
+.planner-container input {
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+#schedule-list {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.schedule-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.delete-button {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background-color: #ff1a1a;
 }
