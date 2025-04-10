@@ -5,19 +5,20 @@ import {
   deleteDoc,
   updateDoc,
   doc,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase/firestore.js";
 
 // Firestore에 일정 추가
 export async function addSchedule(schedule) {
   try {
-    // 중복 데이터 확인
     const existingSchedules = await getSchedules();
     const isDuplicate = existingSchedules.some(
       (s) => s.title === schedule.title && s.date === schedule.date
     );
 
     if (isDuplicate) {
+      console.log("Duplicate schedule detected. Skipping Firestore write.");
       throw new Error("이미 동일한 일정이 존재합니다.");
     }
 
@@ -59,6 +60,18 @@ export async function deleteSchedule(id) {
 export async function updateSchedule(id, updatedData) {
   try {
     const scheduleRef = doc(db, "schedules", id);
+    const existingSchedule = (await getDoc(scheduleRef)).data();
+
+    // 변경된 데이터만 업데이트
+    const isChanged = Object.keys(updatedData).some(
+      (key) => updatedData[key] !== existingSchedule[key]
+    );
+
+    if (!isChanged) {
+      console.log("No changes detected. Skipping Firestore update.");
+      return; // 변경 사항이 없으면 업데이트 중단
+    }
+
     await updateDoc(scheduleRef, updatedData);
     console.log("Document updated with ID: ", id);
   } catch (error) {

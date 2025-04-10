@@ -213,6 +213,13 @@ export function render(container) {
         const id = e.dataTransfer.getData("text/plain"); // 드래그된 일정 ID 가져오기
         const newPriority = column.parentElement.id.replace("-priority", ""); // 새로운 우선순위 계산
 
+        // 기존 우선순위와 비교
+        const schedule = cachedSchedules.find((s) => s.id === id);
+        if (schedule.priority === newPriority) {
+          console.log("Priority unchanged. Skipping Firestore update.");
+          return; // 우선순위가 변경되지 않았으면 업데이트 중단
+        }
+
         try {
           await updateSchedule(id, { priority: newPriority }); // Firestore에서 일정 우선순위 업데이트
           loadSchedules(); // 일정 목록 새로고침
