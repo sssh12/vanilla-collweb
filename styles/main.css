@@ -93,3 +93,37 @@ button:hover {
   margin-top: 1rem;
   font-size: 0.9rem;
 }
+
+/* 대시보드 스타일 */
+.dashboard-container {
+  text-align: center;
+  background-color: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.dashboard-container h2 {
+  margin-bottom: 1rem;
+}
+
+.dashboard-container p {
+  margin-bottom: 2rem;
+}
+
+.link-button {
+  display: inline-block;
+  margin-top: 1rem;
+  text-decoration: none;
+  color: white;
+  background-color: #4caf50;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+}
+
+.link-button:hover {
+  background-color: #45a049;
+}
