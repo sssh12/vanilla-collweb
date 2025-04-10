@@ -4,6 +4,8 @@ import {
   deleteSchedule,
   updateSchedule,
 } from "../features/schedule/utils.js";
+import { setReminder } from "../features/notifications/reminders.js";
+import { requestNotificationPermission } from "../features/notifications/notification.js";
 
 // planner.css 로드
 import "../../styles/planner.css";
@@ -18,6 +20,7 @@ export function render(container) {
       <form id="schedule-form">
         <input type="text" id="title" placeholder="Schedule Title" required />
         <input type="date" id="date" required />
+        <input type="time" id="time" required /> <!-- 시간 입력 필드 추가 -->
         <select id="priority" required>
           <option value="High">High</option>
           <option value="Medium">Medium</option>
@@ -61,15 +64,25 @@ export function render(container) {
     }
   });
 
+  // 알림 권한 요청
+  requestNotificationPermission();
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const title = document.getElementById("title").value;
     const date = document.getElementById("date").value;
+    const time = document.getElementById("time").value; // 시간 값 가져오기
     const priority = document.getElementById("priority").value;
 
     try {
       errorMessageDiv.textContent = "";
-      await addSchedule({ title, date, priority });
+
+      // 날짜와 시간을 결합하여 타임스탬프 생성
+      const dateTime = new Date(`${date}T${time}`);
+
+      const schedule = { title, date: dateTime.toISOString(), priority };
+      await addSchedule(schedule);
+      setReminder(schedule); // 알림 설정
       form.reset();
       loadSchedules();
     } catch (error) {
@@ -100,8 +113,20 @@ export function render(container) {
         scheduleItem.setAttribute("draggable", "true");
         scheduleItem.dataset.id = schedule.id;
         scheduleItem.dataset.priority = schedule.priority;
+
+        const scheduleDate = new Date(schedule.date);
+        const formattedDate = scheduleDate.toLocaleDateString("ko-KR", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+        const formattedTime = scheduleDate.toLocaleTimeString("ko-KR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
         scheduleItem.innerHTML = `
-          <p><strong>${schedule.title}</strong> - ${schedule.date}</p>
+          <p><strong>${schedule.title}</strong> - ${formattedDate} ${formattedTime}</p>
           <button class="delete-button">Delete</button>
         `;
 
