@@ -10,6 +10,7 @@ import {
   checkSavedReminders,
 } from "../features/notifications/reminders.js";
 import { requestNotificationPermission } from "../features/notifications/notification.js";
+import { getErrorMessage } from "../firebase/errorHandler.js";
 
 import "../../styles/planner.css";
 import { auth } from "../firebase/auth.js";
@@ -134,7 +135,7 @@ export function render(container) {
       // 폼 초기화
       form.reset();
     } catch (error) {
-      errorMessageDiv.textContent = `Error: ${error.message}`;
+      errorMessageDiv.textContent = getErrorMessage(error);
     }
   });
 

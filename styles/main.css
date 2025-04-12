@@ -98,8 +98,9 @@ button:active {
 /* 에러 메시지 스타일 */
 #error-message {
   color: red;
-  margin-top: 1rem;
   font-size: 0.9rem;
+  margin-top: 10px;
+  text-align: center;
 }
 
 /* 대시보드 스타일 */

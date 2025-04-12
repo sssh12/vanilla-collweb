@@ -2,6 +2,8 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 // Firebase Authentication 객체 가져오기
 import { auth } from "../firebase/auth.js";
+// Firebase 에러 메시지 처리 함수 가져오기
+import { getErrorMessage } from "../firebase/errorHandler.js";
 
 // 회원가입 페이지 렌더링 함수
 export function render(container) {
@@ -44,7 +46,7 @@ export function render(container) {
       window.location.hash = "/login"; // 회원가입 후 로그인 페이지로 이동
     } catch (error) {
       // 회원가입 실패 시 오류 메시지 표시
-      errorMessageDiv.textContent = `Error: ${error.message}`; // 에러 메시지 표시
+      errorMessageDiv.textContent = getErrorMessage(error); // 에러 메시지 표시
     }
   });
 }
