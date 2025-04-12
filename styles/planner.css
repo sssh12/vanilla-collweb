@@ -11,14 +11,11 @@
   /* 화면 높이에 맞게 조정 */
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 120px); /* 헤더(60px) + 푸터(60px)를 제외한 높이 */
-  overflow: hidden; /* 기본적으로 스크롤 숨김 */
 }
 
 /* 일정 목록 영역 */
 .schedule-lists {
   flex: 1;
-  overflow-y: auto;
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
@@ -28,12 +25,14 @@
 /* 각 일정 칼럼 */
 .schedule-column {
   flex: 1;
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 8px;
   padding: 1rem;
   min-height: 300px;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
 }
 
 /* 일정 추가 폼 스타일 */
@@ -71,4 +70,116 @@
 #schedule-form button:active {
   transform: scale(0.95);
   background-color: #003f7f;
+}
+
+/* 일정 목록 영역이 칼럼 내부 공간을 최대한 활용하도록 수정 */
+.schedule-items {
+  flex: 1;
+  min-height: 200px;
+  padding: 8px;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.6);
+  transition: all 0.3s ease;
+}
+
+/* 드롭 가능한 영역 하이라이트 스타일 */
+.schedule-items.dropzone-highlight {
+  background-color: rgba(230, 240, 255, 0.6);
+  border: 2px dashed #6c9bff;
+  box-shadow: inset 0 0 10px rgba(0, 123, 255, 0.1);
+  animation: pulse 1.5s infinite;
+}
+
+/* 애니메이션 키프레임 정의 */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+  }
+}
+
+/* 드래그 중인 항목 스타일 강화 */
+.schedule-item.dragging,
+.sortable-chosen {
+  opacity: 0.8;
+  background-color: #e6f2ff !important;
+  border: 2px dashed #007bff !important;
+  transform: scale(1.02);
+  cursor: grabbing;
+  z-index: 1000;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* 드래그 중인 항목의 고스트 스타일 */
+.sortable-ghost {
+  opacity: 0.4;
+  background-color: #f0f8ff !important;
+  border: 2px dotted #a9c5ff !important;
+}
+
+/* 폴백 요소 스타일 */
+.sortable-fallback {
+  opacity: 0.9;
+  transform: rotate(1deg);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* 드롭 가능한 영역이 활성화되었을 때 스타일 */
+.schedule-items.dragover {
+  background-color: #e3f2fd;
+  border: 2px dashed #0d6efd;
+  padding: 8px;
+  transition: all 0.2s;
+  min-height: 100px;
+}
+
+/* 항목 스타일 개선 */
+.schedule-item {
+  cursor: grab;
+  transition: all 0.2s ease;
+  margin-bottom: 12px;
+  background-color: white;
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #007bff;
+  position: relative;
+}
+
+/* 항목 마우스 오버 효과 */
+.schedule-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 삭제 버튼 스타일 개선 */
+.delete-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.delete-button:hover {
+  opacity: 1;
+}
+
+/* 비활성화된 버튼 스타일 */
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
