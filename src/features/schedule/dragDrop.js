@@ -1,6 +1,9 @@
 import Sortable from "sortablejs";
 import { updateSchedule, batchUpdateSchedules } from "./utils.js";
 
+// 진행 중인 업데이트 확인용 변수
+let isUpdating = false;
+
 export function initDragAndDrop(containerId) {
   const container = document.querySelector(`#${containerId} .schedule-items`);
   if (!container) return;
@@ -11,11 +14,11 @@ export function initDragAndDrop(containerId) {
   }
 
   // 각 카테고리별 드롭 영역 설정
-  new Sortable(container, {
+  const sortable = new Sortable(container, {
     group: "schedules", // 카테고리간 이동을 위한 그룹 설정
-    animation: 300,
+    animation: 150, // 애니메이션 시간
     easing: "cubic-bezier(1, 0, 0, 1)",
-    delay: 50,
+    delay: 30, // 드래그 시작 지연 시간
     delayOnTouchOnly: true,
     draggable: ".schedule-item",
     ghostClass: "sortable-ghost",
@@ -29,6 +32,11 @@ export function initDragAndDrop(containerId) {
 
     // 드래그 시작 시 호출
     onStart: function (evt) {
+      // 업데이트 진행 중일 때 드래그 허용 안 함
+      if (isUpdating) {
+        return false;
+      }
+
       const itemEl = evt.item;
       itemEl.classList.add("dragging");
 
@@ -66,29 +74,46 @@ export function initDragAndDrop(containerId) {
       // 데이터셋 우선 업데이트 (UI 반응성)
       evt.item.dataset.priority = newPriority;
 
-      try {
-        // 변경된 데이터만 업데이트 - 업데이트 요청 최소화
-        await updateSchedule(id, { priority: newPriority });
-        console.log("Priority updated successfully");
-      } catch (error) {
-        console.error("Error updating priority:", error);
-        // 오류 시 UI 복원 (원래 위치로)
-        evt.item.dataset.priority = oldPriority;
+      // 에러 메시지 초기화
+      const errorMessageDiv = document.getElementById("error-message");
+      if (errorMessageDiv) errorMessageDiv.textContent = "";
 
-        // 원래 부모 요소로 복원
-        if (evt.from && evt.item.parentNode !== evt.from) {
-          evt.from.appendChild(evt.item);
+      // 중요: 비동기 작업 시작 표시
+      isUpdating = true;
+
+      // 비동기 작업은 뒤로 보내고 UI는 즉시 반응하도록 분리
+      setTimeout(async () => {
+        try {
+          // 변경된 데이터만 업데이트 - 업데이트 요청 최소화
+          await updateSchedule(id, { priority: newPriority });
+          console.log("Priority updated successfully");
+        } catch (error) {
+          console.error("Error updating priority:", error);
+
+          // 에러 메시지 표시
+          if (errorMessageDiv) {
+            const getErrorMessage =
+              window.getErrorMessage ||
+              ((err) =>
+                err.message || "일정 우선순위 변경 중 오류가 발생했습니다.");
+            errorMessageDiv.textContent = getErrorMessage(error);
+          }
+
+          // 실패 시에만 UI 복원 (이미 이동은 완료된 상태)
+          // 사용자 경험 향상을 위해 백그라운드에서 조용히 실패 처리
+        } finally {
+          // 비동기 작업 종료 표시 (드래그 다시 가능)
+          isUpdating = false;
         }
-      }
+      }, 0);
     },
 
-    // 다중 드래그 지원 (추가 기능)
-    multiDrag: false, // SortableJS의 멀티드래그 기능 (선택적)
+    // 다중 드래그 지원
+    multiDrag: false,
     selectedClass: "selected",
 
     // 다중 항목 이동 시 호출
     onSort: function (evt) {
-      // 만약 멀티드래그 기능이 활성화된 경우 일괄 업데이트 처리
       if (evt.items && evt.items.length > 1) {
         const updates = [];
 
@@ -107,13 +132,18 @@ export function initDragAndDrop(containerId) {
           item.dataset.priority = newPriority;
         });
 
-        // 배치 업데이트 실행 (단일 네트워크 요청)
+        // 배치 업데이트 실행 - 백그라운드에서 처리
         if (updates.length > 0) {
-          batchUpdateSchedules(updates).catch((error) => {
-            console.error("Batch update failed:", error);
-          });
+          setTimeout(() => {
+            batchUpdateSchedules(updates).catch((error) => {
+              console.error("Batch update failed:", error);
+            });
+          }, 0);
         }
       }
     },
   });
+
+  // Sortable 인스턴스 참조 저장
+  container.sortable = sortable;
 }

@@ -64,6 +64,11 @@ export function render(container) {
   const form = document.getElementById("schedule-form");
   const errorMessageDiv = document.getElementById("error-message");
 
+  // 에러 메시지 초기화 함수
+  function clearErrorMessage() {
+    errorMessageDiv.textContent = "";
+  }
+
   // 알림 권한 요청
   requestNotificationPermission();
   checkSavedReminders();
@@ -94,7 +99,7 @@ export function render(container) {
     const priority = document.getElementById("priority").value;
 
     try {
-      errorMessageDiv.textContent = "";
+      clearErrorMessage(); // 에러 메시지 초기화
 
       let dateTime;
       let schedule;
@@ -134,6 +139,8 @@ export function render(container) {
 
       // 폼 초기화
       form.reset();
+      // 성공 시 에러 메시지 초기화 (중복 초기화이지만 안전을 위해 유지)
+      clearErrorMessage();
     } catch (error) {
       errorMessageDiv.textContent = getErrorMessage(error);
     }
@@ -141,6 +148,9 @@ export function render(container) {
 
   // 일정 데이터를 화면에 표시하는 함수 - 시간순 정렬 유지
   function renderSchedules(schedules) {
+    // 화면이 다시 렌더링될 때 에러 메시지 초기화
+    clearErrorMessage();
+
     // 시간순으로 정렬
     const sortedSchedules = [...schedules].sort((a, b) => {
       return new Date(a.date) - new Date(b.date);
@@ -207,10 +217,11 @@ export function render(container) {
           deleteButton.disabled = true;
           await deleteSchedule(schedule.id);
           scheduleItem.remove();
+          clearErrorMessage(); // 성공적으로 삭제 시 에러 메시지 초기화
         } catch (error) {
           console.error("Error deleting schedule:", error);
           deleteButton.disabled = false;
-          errorMessageDiv.textContent = `일정 삭제 중 오류가 발생했습니다: ${error.message}`;
+          errorMessageDiv.textContent = getErrorMessage(error); // getErrorMessage로 메시지 변환
         }
       });
 
@@ -240,6 +251,7 @@ export function render(container) {
         if (schedulesJSON !== JSON.stringify(cachedSchedules)) {
           cachedSchedules = JSON.parse(schedulesJSON);
           renderSchedules(cachedSchedules);
+          clearErrorMessage(); // 데이터 변경 시 에러 메시지 초기화
         }
       });
     }

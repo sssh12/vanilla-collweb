@@ -12,6 +12,7 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { db } from "../../firebase/firestore.js";
+import { getErrorMessage } from "../../firebase/errorHandler.js";
 
 // 캐싱을 위한 상수 설정
 const CACHE_KEY = "schedules_cache";
@@ -103,8 +104,9 @@ export async function addSchedule(schedule) {
 
     return docRef.id;
   } catch (error) {
-    console.error("일정 추가 중 오류: ", error);
-    throw new Error("일정을 추가하는데 실패했습니다.");
+    const errorMessage = getErrorMessage(error);
+    console.error("일정 추가 중 오류: ", errorMessage);
+    throw new Error(errorMessage);
   }
 }
 
@@ -153,7 +155,8 @@ export async function getSchedules() {
     cacheSchedules(schedules);
     return schedules;
   } catch (error) {
-    console.error("일정 조회 중 오류:", error);
+    const errorMessage = getErrorMessage(error);
+    console.error("일정 조회 중 오류: ", errorMessage);
 
     // 오류 발생 시 캐시 데이터 반환 시도
     const cachedData = getCachedSchedules();
@@ -162,7 +165,7 @@ export async function getSchedules() {
       return cachedData;
     }
 
-    throw new Error("일정을 불러오는데 실패했습니다.");
+    throw new Error(errorMessage); // 한국어 메시지를 던짐
   }
 }
 
@@ -178,7 +181,8 @@ async function refreshCacheInBackground() {
     cacheSchedules(schedules);
     console.log("백그라운드에서 캐시 갱신 완료");
   } catch (error) {
-    console.error("백그라운드 캐시 갱신 실패:", error);
+    const errorMessage = getErrorMessage(error);
+    console.error("백그라운드 캐시 갱신 실패:", errorMessage);
   }
 }
 
@@ -201,8 +205,9 @@ export async function deleteSchedule(id) {
     await deleteDoc(scheduleRef);
     console.log("일정 삭제 완료, ID: ", id);
   } catch (error) {
-    console.error("일정 삭제 중 오류: ", error);
-    throw new Error("일정을 삭제하는데 실패했습니다.");
+    const errorMessage = getErrorMessage(error);
+    console.error("일정 삭제 중 오류: ", errorMessage);
+    throw new Error(errorMessage); // 한국어 메시지를 던짐
   }
 }
 
@@ -254,7 +259,14 @@ export async function updateSchedule(id, updatedData) {
     console.log("일정 업데이트 완료, ID: ", id);
   } catch (error) {
     console.error("일정 업데이트 중 오류:", error);
-    throw new Error("일정을 업데이트하는데 실패했습니다.");
+
+    // 에러 객체를 새로 생성하지 않고 원본 에러 전달
+    // 또는 code 속성을 명시적으로 추가
+    if (!error.code) {
+      error.code = "firestore/unknown-error";
+    }
+
+    throw error; // 원본 에러 객체를 그대로 전달
   }
 }
 
@@ -269,7 +281,7 @@ function updateCacheOnUpdate(id, updatedSchedule) {
   }
 }
 
-// 배치 업데이트 함수 추가 (여러 일정 한 번에 업데이트)
+// 배치 업데이트 함수 추가
 export async function batchUpdateSchedules(updates) {
   if (!updates || updates.length === 0) return;
 
@@ -291,8 +303,9 @@ export async function batchUpdateSchedules(updates) {
     await batch.commit();
     console.log(`${updates.length}개 일정 배치 업데이트 완료`);
   } catch (error) {
-    console.error("배치 업데이트 중 오류:", error);
-    throw new Error("일정 일괄 업데이트에 실패했습니다.");
+    const errorMessage = getErrorMessage(error);
+    console.error("배치 업데이트 중 오류:", errorMessage);
+    throw new Error(errorMessage); // 한국어 메시지를 던짐
   }
 }
 

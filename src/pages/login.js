@@ -1,8 +1,5 @@
-// Firebase Authentication에서 로그인 함수 가져오기
 import { signInWithEmailAndPassword } from "firebase/auth";
-// Firebase Authentication 객체 가져오기
 import { auth } from "../firebase/auth.js";
-// Firebase 에러 메시지 처리 함수 가져오기
 import { getErrorMessage } from "../firebase/errorHandler.js";
 
 // 로그인 페이지 렌더링 함수
