@@ -21,6 +21,10 @@ export function initDragAndDrop(containerId) {
     delay: 30, // 드래그 시작 지연 시간
     delayOnTouchOnly: true,
     draggable: ".schedule-item",
+    // 삭제 버튼을 드래그에서 제외
+    filter: ".delete-button",
+    // 필터링된 요소 클릭 시 드래그 방지
+    preventOnFilter: true,
     ghostClass: "sortable-ghost",
     chosenClass: "sortable-chosen",
     dragClass: "sortable-drag",
@@ -29,6 +33,9 @@ export function initDragAndDrop(containerId) {
     scroll: true,
     scrollSensitivity: 80,
     scrollSpeed: 10,
+
+    // 특정 영역만 드래그 가능하게 설정
+    handle: ".schedule-drag-handle",
 
     // 드래그 시작 시 호출
     onStart: function (evt) {

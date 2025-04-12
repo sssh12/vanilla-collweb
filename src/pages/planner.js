@@ -205,6 +205,9 @@ export function render(container) {
       }
 
       scheduleItem.innerHTML = `
+        <div class="schedule-drag-handle">
+          <span class="drag-icon">☰</span> <!-- 드래그 핸들 아이콘 -->
+        </div>
         <p>${displayText}</p>
         <button class="delete-button">Delete</button>
       `;
@@ -212,16 +215,19 @@ export function render(container) {
       // 삭제 버튼
       const deleteButton = scheduleItem.querySelector(".delete-button");
 
-      deleteButton.addEventListener("click", async () => {
+      deleteButton.addEventListener("click", async (e) => {
+        // 이벤트 전파 중지
+        e.stopPropagation();
+
         try {
           deleteButton.disabled = true;
           await deleteSchedule(schedule.id);
           scheduleItem.remove();
-          clearErrorMessage(); // 성공적으로 삭제 시 에러 메시지 초기화
+          clearErrorMessage();
         } catch (error) {
           console.error("Error deleting schedule:", error);
           deleteButton.disabled = false;
-          errorMessageDiv.textContent = getErrorMessage(error); // getErrorMessage로 메시지 변환
+          errorMessageDiv.textContent = getErrorMessage(error);
         }
       });
 
