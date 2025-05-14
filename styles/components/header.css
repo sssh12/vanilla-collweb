@@ -1,7 +1,7 @@
 /* 헤더 스타일 */
 header {
-  background-color: #495057;
-  color: white;
+  background-color: white;
+  color: black;
   padding: 1rem;
   display: flex;
   justify-content: space-between;

@@ -3,7 +3,7 @@ body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f7f7f7;
+  background-color: #c8c4c4b7;
   color: #333;
   display: flex;
   flex-direction: column;
@@ -16,18 +16,6 @@ body {
   height: 100%; /* 화면 전체 높이 사용 */
 }
 
-header {
-  flex-shrink: 0;
-  background-color: #495057;
-  color: white;
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 60px;
-  box-sizing: border-box;
-}
-
 main {
   flex: 1;
   overflow-y: auto;
@@ -36,16 +24,6 @@ main {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-}
-
-footer {
-  flex-shrink: 0;
-  background-color: #495057;
-  color: white;
-  text-align: center;
-  padding: 1rem;
-  height: 60px;
-  box-sizing: border-box;
 }
 
 /* 공통 폼 스타일 */
