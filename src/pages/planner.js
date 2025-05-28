@@ -12,7 +12,7 @@ import {
 import { requestNotificationPermission } from "../features/notifications/notification.js";
 import { getErrorMessage } from "../firebase/errorHandler.js";
 
-import "../../styles/planner.css";
+import "../../assets/styles/planner.css";
 import { auth } from "../firebase/auth.js";
 
 // 플래너 페이지를 렌더링하는 함수

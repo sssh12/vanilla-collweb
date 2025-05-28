@@ -1,0 +1,9 @@
+/* 채팅 관련 스타일 */
+#chat-box {
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}

@@ -8,7 +8,7 @@ export function render(container) {
   // 대시보드 UI 생성
   container.innerHTML = `
     <div class="dashboard-container">
-      <img src="assets/images/logo.png" alt="Logo" class="dashboard-logo" />
+      <img src="./assets/images/logo.png" alt="Logo" class="dashboard-logo" />
       <h2>반갑습니다, <span id="user-email">${
         user ? user.email : "Guest"
       }</span>!</h2>
