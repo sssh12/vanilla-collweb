@@ -2,12 +2,18 @@
 header {
   background-color: white;
   color: black;
-  padding: 1rem;
+  padding: 1rem 2rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   height: 60px;
   box-sizing: border-box;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+.header-logo-link {
+  display: flex;
+  align-items: center;
 }
 
 .header-logo {
@@ -37,4 +43,21 @@ header button:active {
 
 header button.hidden {
   display: none;
+}
+
+#sidebar-toggle {
+  position: static; /* fixed 제거! */
+  font-size: 2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #007bff;
+  margin-left: 1rem;
+  margin-right: 2rem;
+  z-index: 1;
+  transition: background 0.2s;
+}
+
+#logout-button {
+  margin-left: auto;
 }

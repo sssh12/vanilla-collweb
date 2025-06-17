@@ -131,3 +131,211 @@ button:active {
   height: auto; /* 비율 유지 */
   margin-bottom: 1rem;
 }
+
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ff3b3b;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 0.85rem;
+  font-weight: bold;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(255, 59, 59, 0.12);
+  border: 2px solid #fff;
+  z-index: 10;
+  padding: 0;
+  line-height: 20px; /* 숫자가 정확히 중앙에 오도록 */
+  pointer-events: none;
+  transition: transform 0.1s;
+  text-align: center;
+}
+
+.notification-badge:empty {
+  display: none;
+}
+
+.group-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  justify-content: center; /* 추가 */
+}
+
+/* 그룹 카드 스타일 */
+.group-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 1.2rem;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: box-shadow 0.2s;
+}
+
+.group-card:hover {
+  box-shadow: 0 4px 16px #007bff22;
+}
+
+.link-button {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  transition: background 0.2s;
+}
+
+.link-button:hover {
+  background: #0056b3;
+}
+
+.group-card .link-button {
+  margin: 0 !important;
+}
+
+.group-card .button-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* 이메일 초대 인풋/버튼 정렬 개선 */
+.invite-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  max-width: 100%;
+  margin-bottom: 0.5rem;
+  justify-content: center;
+}
+
+.invite-row input[type="email"] {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.invite-row button {
+  height: 42px;
+  min-width: 70px;
+  padding: 0 1.2rem;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* 그룹 상세 테이블 */
+#group-detail-content {
+  text-align: center;
+}
+
+#group-detail-content table {
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fafbfc;
+  margin-bottom: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#group-detail-content th,
+#group-detail-content td {
+  border-right: 1px solid #e0e0e0;
+  vertical-align: middle !important;
+}
+#group-detail-content th:last-child,
+#group-detail-content td:last-child {
+  border-right: none;
+}
+
+#group-detail-content th.email-col,
+#group-detail-content td.email-col {
+  text-align: left !important;
+}
+#group-detail-content th:not(.email-col),
+#group-detail-content td:not(.email-col) {
+  text-align: right !important;
+}
+
+/* 멤버 관리 버튼 세로 중앙 정렬 */
+.member-action-btns {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+/* 그룹 삭제 버튼 */
+#delete-group-btn {
+  background: #f44336;
+  color: #fff;
+  border: none;
+  transition: background 0.2s;
+}
+#delete-group-btn:hover {
+  background: #d32f2f;
+}
+
+/* 멤버 초대 버튼 */
+#invite-btn {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  transition: background 0.2s;
+}
+#invite-btn:hover {
+  background: #0056b3;
+}
+
+/* 멤버 추방 버튼 */
+.remove-member-btn {
+  background: #f44336;
+  color: #fff;
+  border: none;
+  transition: background 0.2s;
+}
+.remove-member-btn:hover {
+  background: #d32f2f;
+}
+
+/* 권한 변경 버튼 */
+.change-role-btn {
+  background: #888;
+  color: #fff;
+  border: none;
+  transition: background 0.2s;
+}
+.change-role-btn:hover {
+  background: #444;
+}
+
+/* 초대 링크 복사 버튼 */
+#copy-link-btn {
+  background: #888;
+  color: #fff;
+  border: none;
+  transition: background 0.2s;
+}
+#copy-link-btn:hover {
+  background: #444;
+}

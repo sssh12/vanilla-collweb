@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../../firebase/firestore.js";
 import { getErrorMessage } from "../../firebase/errorHandler.js";
+import { auth } from "../../firebase/auth.js"; // auth 임포트 추가
 
 // 캐싱을 위한 상수 설정
 const CACHE_KEY = "schedules_cache";
@@ -55,23 +56,19 @@ export function listenToSchedules(callback) {
     activeListener();
   }
 
-  // 캐시 데이터 우선 사용
-  const cachedData = getCachedSchedules();
-  if (cachedData) {
-    callback(cachedData);
-  }
+  const user = auth.currentUser;
+  if (!user) return;
 
-  // 실시간 데이터 리스닝 설정
+  // 본인 일정만 쿼리
   const schedulesRef = collection(db, "schedules");
+  const q = query(schedulesRef, where("userId", "==", user.uid));
   activeListener = onSnapshot(
-    schedulesRef,
+    q,
     (snapshot) => {
-      const schedules = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      // 캐시 업데이트
+      // groupId가 없는(개인 일정)만 전달
+      const schedules = snapshot.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .filter((item) => !item.groupId);
       cacheSchedules(schedules);
       callback(schedules);
     },
@@ -324,4 +321,49 @@ function updateCacheForBatch(updates) {
   });
 
   cacheSchedules(updated);
+}
+
+// 특정 그룹의 일정만 조회하는 함수 추가
+export async function getGroupSchedules(groupId) {
+  const q = query(collection(db, "schedules"), where("groupId", "==", groupId));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+}
+
+// 내 일정만 조회하는 함수 추가
+export async function getMySchedules() {
+  const user = auth.currentUser;
+  if (!user) return [];
+  const q = query(collection(db, "schedules"), where("userId", "==", user.uid));
+  const snapshot = await getDocs(q);
+  // groupId가 없는(개인 일정)만 반환
+  return snapshot.docs
+    .map((doc) => ({ id: doc.id, ...doc.data() }))
+    .filter((item) => !item.groupId);
+}
+
+// 그룹 일정 리스너
+let activeGroupListener = null;
+
+export function listenToGroupSchedules(groupId, callback) {
+  if (activeGroupListener) {
+    activeGroupListener();
+  }
+  if (!groupId) return;
+  const schedulesRef = collection(db, "schedules");
+  const q = query(schedulesRef, where("groupId", "==", groupId));
+  activeGroupListener = onSnapshot(
+    q,
+    (snapshot) => {
+      const schedules = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      callback(schedules);
+    },
+    (error) => {
+      console.error("그룹 일정 리스너 오류:", error);
+    }
+  );
+  return activeGroupListener;
 }

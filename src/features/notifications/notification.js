@@ -1,66 +1,126 @@
-// 브라우저에서 알림 권한을 요청하는 함수
-export async function requestNotificationPermission() {
-  // 브라우저가 알림을 지원하지 않을 경우
-  if (!("Notification" in window)) {
-    console.error("이 브라우저는 알림을 지원하지 않습니다.");
-    return false;
-  }
+import {
+  acceptGroupInvite,
+  rejectGroupInvite,
+} from "../../features/group/group.js";
+import { auth } from "../../firebase/auth.js";
+import { db } from "../../firebase/firestore.js";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 
-  // 이미 권한이 부여된 경우
-  if (Notification.permission === "granted") {
-    return true;
-  }
+let unsubscribe = null;
+let lastUserUid = null;
+let popupOpen = false;
 
-  // 권한이 명시적으로 거부된 경우
-  if (Notification.permission === "denied") {
-    alert("브라우저 설정에서 알림 권한을 허용해주세요.");
-    return false;
-  }
+export function initInviteNotificationBadge() {
+  const badge = document.getElementById("notification-badge");
+  const btn = document.getElementById("notification-btn");
+  if (!badge || !btn) return;
 
-  // 사용자에게 알림 권한 요청
-  try {
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      console.log("알림 권한이 거부되었습니다.");
-      return false;
+  // 로그인 상태 감시
+  auth.onAuthStateChanged((user) => {
+    // 팝업/뱃지/버튼 숨김
+    if (!user) {
+      badge.style.display = "none";
+      btn.style.display = "none";
+      closeInvitePopup();
+      if (unsubscribe) unsubscribe();
+      lastUserUid = null;
+      return;
     }
-    return true;
-  } catch (error) {
-    console.error("알림 권한 요청 중 오류 발생:", error);
-    return false;
-  }
+    btn.style.display = ""; // 버튼 보이기
+    // 리스너 중복 방지
+    if (unsubscribe) unsubscribe();
+    lastUserUid = user.uid;
+    const userRef = doc(db, "users", user.uid);
+    unsubscribe = onSnapshot(userRef, (snap) => {
+      const invites = snap.data()?.groupInvites || [];
+      if (invites.length > 0) {
+        badge.textContent = invites.length;
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+      // 팝업이 열려 있으면 실시간으로 내용 갱신
+      if (popupOpen) renderInvitePopup(invites, user);
+    });
+  });
+
+  // 토글 방식: 이미 열려 있으면 닫기, 아니면 열기
+  btn.onclick = async () => {
+    if (popupOpen) {
+      closeInvitePopup();
+      return;
+    }
+    const user = auth.currentUser;
+    if (!user) return;
+    const userSnap = await getDoc(doc(db, "users", user.uid));
+    const invites = userSnap.data()?.groupInvites || [];
+    renderInvitePopup(invites, user);
+  };
 }
 
-// 알림을 화면에 표시하는 함수
-export function showNotification(title, options) {
-  // 알림 권한이 허용된 경우에만 알림 생성
-  if (Notification.permission === "granted") {
-    try {
-      const notification = new Notification(title, options);
+function closeInvitePopup() {
+  document.querySelector("#invite-popup")?.remove();
+  popupOpen = false;
+}
 
-      // 알림 클릭 이벤트
-      notification.onclick = function () {
-        window.focus(); // 창에 포커스
-        this.close(); // 알림 닫기
-      };
+// 팝업 렌더링 함수
+function renderInvitePopup(invites, user) {
+  closeInvitePopup();
 
-      // 알림 자동 닫힘 (5초 후)
-      setTimeout(() => notification.close(), 5000);
+  let html = `<div id="invite-popup" style="position:fixed;top:60px;right:30px;z-index:999;background:#fff;border:1px solid #ccc;padding:1rem;box-shadow:0 2px 8px #0002;min-width:220px;">
+    <h4 style="margin-top:0;">알림</h4>
+    <ul style="list-style:none;padding:0;min-height:32px;">`;
 
-      return notification;
-    } catch (error) {
-      console.error("알림 생성 중 오류 발생:", error);
-    }
+  if (!invites || invites.length === 0) {
+    html += `<li style="color:#888;text-align:center;padding:1rem 0;">알림이 없습니다.</li>`;
   } else {
-    console.log("알림 권한이 부여되지 않았습니다.");
-    requestNotificationPermission(); // 권한 다시 요청 시도
+    invites.forEach((invite) => {
+      html += `<li style="margin-bottom:8px;">
+        <b>${invite.groupName || invite.groupId}</b>
+        <button class="accept-invite-btn" data-group="${
+          invite.groupId
+        }">수락</button>
+        <button class="reject-invite-btn" data-group="${
+          invite.groupId
+        }">거절</button>
+      </li>`;
+    });
+  }
+  html += `</ul>
+    <button id="close-invite-popup" style="margin-top:8px;width:100%;">닫기</button>
+  </div>`;
+  document.body.insertAdjacentHTML("beforeend", html);
+  popupOpen = true;
+
+  document.querySelectorAll(".accept-invite-btn").forEach((btn) => {
+    btn.onclick = async () => {
+      await acceptGroupInvite(btn.dataset.group, user);
+      // 팝업은 실시간으로 onSnapshot에서 자동 갱신
+    };
+  });
+  document.querySelectorAll(".reject-invite-btn").forEach((btn) => {
+    btn.onclick = async () => {
+      await rejectGroupInvite(btn.dataset.group, user);
+      // 팝업은 실시간으로 onSnapshot에서 자동 갱신
+    };
+  });
+  document.getElementById("close-invite-popup").onclick = () => {
+    closeInvitePopup();
+  };
+}
+
+export function showNotification(title, options) {
+  if (Notification.permission === "granted") {
+    new Notification(title, options);
   }
 }
 
-// 페이지 로드 시 저장된 알림 확인
-export function initNotifications() {
-  // 다른 파일에서 import 필요
-  if (typeof checkSavedReminders === "function") {
-    checkSavedReminders();
+export async function requestNotificationPermission() {
+  if (!("Notification" in window)) return false;
+  if (Notification.permission === "granted") return true;
+  if (Notification.permission !== "denied") {
+    const permission = await Notification.requestPermission();
+    return permission === "granted";
   }
+  return false;
 }

@@ -4,6 +4,13 @@ import { getErrorMessage } from "../firebase/errorHandler.js";
 
 // 로그인 페이지 렌더링 함수
 export function render(container) {
+  const sidebarToggle = document.getElementById("sidebar-toggle");
+  if (sidebarToggle) sidebarToggle.style.display = "none";
+
+  // 사이드바 완전 제거
+  const sidebarRoot = document.getElementById("sidebar-root");
+  if (sidebarRoot) sidebarRoot.innerHTML = "";
+
   // 로그인 UI 생성
   container.innerHTML = `
     <h1>로그인</h1>
@@ -31,7 +38,7 @@ export function render(container) {
       // Firebase Authentication을 사용하여 로그인 요청
       errorMessageDiv.textContent = ""; // 에러 메시지 초기화
       await signInWithEmailAndPassword(auth, email, password);
-      window.location.hash = "/"; // 로그인 후 대시보드로 이동
+      window.location.hash = "/"; // 항상 대시보드로 이동!
     } catch (error) {
       // 로그인 실패 시 오류 메시지 표시
       errorMessageDiv.textContent = getErrorMessage(error); // 에러 메시지 표시

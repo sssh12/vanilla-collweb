@@ -9,18 +9,34 @@
   <body>
     <div class="container">
       <header>
-        <a href="#/">
+        <a href="#/" class="header-logo-link">
           <img
             src="./assets/images/logo.png"
             alt="Collweb Logo"
             class="header-logo"
           />
         </a>
+        <button id="sidebar-toggle" aria-label="메뉴 열기">
+          <span class="sidebar-toggle-icon">&#9776;</span>
+        </button>
+
         <button id="logout-button" class="hidden">로그아웃</button>
+        <button
+          id="notification-btn"
+          aria-label="알림"
+          style="position: relative"
+        >
+          <span class="notification-icon">🔔</span>
+          <span
+            id="notification-badge"
+            class="notification-badge"
+            style="display: none"
+            >0</span
+          >
+        </button>
       </header>
-      <main id="app">
-        <!-- 각 페이지의 콘텐츠가 여기에 렌더링 -->
-      </main>
+      <div id="sidebar-root"></div>
+      <main id="app"></main>
       <!-- 공통 에러 메시지 표시 영역 -->
       <div id="error-message" style="color: red; margin-top: 10px"></div>
       <footer>

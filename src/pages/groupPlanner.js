@@ -1,8 +1,7 @@
 import {
   addSchedule,
   deleteSchedule,
-  getMySchedules,
-  listenToSchedules,
+  listenToGroupSchedules,
 } from "../features/schedule/utils.js";
 import { initDragAndDrop } from "../features/schedule/dragDrop.js";
 import {
@@ -11,41 +10,96 @@ import {
 } from "../features/notifications/reminders.js";
 import { requestNotificationPermission } from "../features/notifications/notification.js";
 import { getErrorMessage } from "../firebase/errorHandler.js";
-import "../../assets/styles/planner.css";
 import { auth } from "../firebase/auth.js";
 import { renderSidebar } from "../components/sidebar.js";
+import { db } from "../firebase/firestore.js";
+import { getDoc, doc } from "firebase/firestore";
 import { openScheduleModal } from "../components/ScheduleModal.js";
+import "../../assets/styles/planner.css";
 
-// 플래너 페이지를 렌더링하는 함수
-export function render(container) {
-  // 현재 로그인한 사용자 정보 가져오기
-  const user = auth.currentUser;
+export async function render(container) {
+  // groupId 파싱
+  const hash = window.location.hash;
+  const match = hash.match(/^#\/group\/([^/]+)\/planner/);
+  const groupId = match ? match[1] : null;
 
-  const sidebarToggle = document.getElementById("sidebar-toggle");
-  if (sidebarToggle) sidebarToggle.style.display = "";
+  if (!groupId || typeof groupId !== "string") {
+    container.innerHTML = "<div>잘못된 그룹 접근입니다.</div>";
+    return;
+  }
 
-  // 플래너 UI 생성
+  // 그룹 정보 및 멤버 가져오기
+  let groupName = "";
+  let isMember = false;
+  let members = [];
+  if (groupId) {
+    try {
+      const groupDoc = await getDoc(doc(db, "groups", groupId));
+      if (groupDoc.exists()) {
+        const group = groupDoc.data();
+        groupName = group.name || "";
+        members = group.members || [];
+        const user = auth.currentUser;
+        if (user && group.membersUid && group.membersUid.includes(user.uid)) {
+          isMember = true;
+        }
+      }
+    } catch (e) {
+      groupName = "";
+    }
+  }
+
+  // 사이드바와 "로딩 중"을 즉시 렌더
+  renderSidebar(document.getElementById("sidebar-root"), "group-planner", {
+    groupName: "",
+    groupId,
+  });
   container.innerHTML = `
+    <div class="planner-container" style="max-width:800px; margin:2rem auto; text-align:center;">
+      <h2>그룹 플래너</h2>
+      <p>로딩 중...</p>
+    </div>
+  `;
 
-    <div class="planner-container">
-      <h2>개인 플래너</h2>
+  // 그룹명 등 정보가 바뀌었으면 사이드바만 다시 렌더
+  renderSidebar(document.getElementById("sidebar-root"), "group-planner", {
+    groupName,
+    groupId,
+  });
+
+  // 멤버가 아니면 안내 메시지
+  if (!isMember) {
+    container.innerHTML = `
+      <div class="planner-container" style="max-width:500px; margin:2rem auto; text-align:center;">
+        <h2>접근 불가</h2>
+        <p>이 그룹의 멤버가 아니므로 그룹 플래너를 볼 수 없습니다.</p>
+        <a href="#/" class="link-button">돌아가기</a>
+      </div>
+    `;
+    return;
+  }
+
+  // 멤버라면 정상 플래너 렌더링 (개인 플래너와 거의 동일)
+  container.innerHTML = `
+    <div class="planner-container" >
+      <h2 style="text-align:left; margin-bottom:1.5rem;">
+        ${
+          groupName
+            ? `<span style="font-size:1.2rem; color:#007bff;">${groupName}</span> 그룹 플래너`
+            : "그룹 플래너"
+        }
+      </h2>
       <form id="schedule-form">
-        <!-- 일정 제목 입력 -->
         <input type="text" id="title" placeholder="일정 제목" required />
-        <!-- 일정 날짜 입력 -->
         <input type="date" id="date" required />
-        <!-- 일정 시간 입력 -->
         <input type="time" id="time"/>
-        <!-- 일정 우선순위 선택 -->
         <select id="priority" required>
           <option value="High">높음</option>
           <option value="Medium">중간</option>
           <option value="Low" selected>낮음</option>
         </select>
-        <!-- 일정 추가 버튼 -->
         <button type="submit">작성하기</button>
       </form>
-      <!-- 일정 목록을 표시할 영역 -->
       <div class="schedule-lists">
         <div class="schedule-column" id="High-priority">
           <h3>중요도 높음</h3>
@@ -60,56 +114,47 @@ export function render(container) {
           <div class="schedule-items"></div>
         </div>
       </div>
-      <!-- 에러 메시지를 표시할 영역 -->
       <div id="error-message" style="color: red; margin-top: 10px;"></div>
     </div>
   `;
 
-  renderSidebar(document.getElementById("sidebar-root"), "planner");
-
-  // DOM 요소 가져오기
   const form = document.getElementById("schedule-form");
   const errorMessageDiv = document.getElementById("error-message");
 
-  // 에러 메시지 초기화 함수
   function clearErrorMessage() {
     errorMessageDiv.textContent = "";
   }
 
-  // 알림 권한 요청
   requestNotificationPermission();
   checkSavedReminders();
 
-  // 상태 관리 변수
   let cachedSchedules = [];
   let unsubscribeListener = null;
-
-  // 컴포넌트 정리 함수 (메모리 누수 방지)
-  function cleanup() {
+  function setupSchedulesListener() {
     if (unsubscribeListener) {
       unsubscribeListener();
       unsubscribeListener = null;
     }
+    // groupId가 문자열인지 확인
+    if (typeof groupId === "string" && groupId) {
+      unsubscribeListener = listenToGroupSchedules(groupId, renderSchedules);
+    }
   }
 
-  // 일정 추가 폼 제출 이벤트 처리
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-
-    // 사용자 입력 가져오기
+    const user = auth.currentUser;
     const title = document.getElementById("title").value;
     const date = document.getElementById("date").value;
     const time = document.getElementById("time").value;
     const priority = document.getElementById("priority").value;
 
     try {
-      clearErrorMessage(); // 에러 메시지 초기화
-
+      clearErrorMessage();
       let dateTime;
       let schedule;
 
       if (time) {
-        // 시간 지정된 경우
         dateTime = new Date(`${date}T${time}`);
         schedule = {
           title,
@@ -117,18 +162,10 @@ export function render(container) {
           priority,
           hasTime: true,
         };
-
-        // Firestore에 일정 추가
-        const id = await addSchedule({ ...schedule, userId: user.uid });
-        schedule.id = id;
-
-        // 알림 설정
+        await addSchedule({ ...schedule, groupId, userId: user.uid });
         const hasPermission = await requestNotificationPermission();
-        if (hasPermission) {
-          setReminder(schedule);
-        }
+        if (hasPermission) setReminder(schedule);
       } else {
-        // 시간 미지정 경우
         dateTime = new Date(`${date}T00:00:00`);
         schedule = {
           title,
@@ -136,74 +173,55 @@ export function render(container) {
           priority,
           hasTime: false,
         };
-
-        // Firestore에 일정 추가
-        await addSchedule({ ...schedule, userId: user.uid });
+        await addSchedule({ ...schedule, groupId, userId: user.uid });
       }
-
-      // 폼 초기화
       form.reset();
-      // 성공 시 에러 메시지 초기화 (중복 초기화이지만 안전을 위해 유지)
       clearErrorMessage();
     } catch (error) {
       errorMessageDiv.textContent = getErrorMessage(error);
     }
   });
 
-  // 일정 데이터를 화면에 표시하는 함수 - 시간순 정렬 유지
+  // 일정 렌더링 함수에서 작성자 이메일+직책 표시
   function renderSchedules(schedules) {
-    // 화면이 다시 렌더링될 때 에러 메시지 초기화
     clearErrorMessage();
-
-    // 시간순으로 정렬
-    const sortedSchedules = [...schedules].sort((a, b) => {
-      return new Date(a.date) - new Date(b.date);
-    });
-
-    // 각 우선순위별로 일정 표시 영역 초기화
+    const sortedSchedules = [...schedules].sort(
+      (a, b) => new Date(a.date) - new Date(b.date)
+    );
     const highPriorityColumn = document.getElementById("High-priority");
     const mediumPriorityColumn = document.getElementById("Medium-priority");
     const lowPriorityColumn = document.getElementById("Low-priority");
-
-    // DOM 요소가 존재하는지 확인
-    if (!highPriorityColumn || !mediumPriorityColumn || !lowPriorityColumn) {
-      console.error("Priority columns are missing in the DOM.");
-      return; // 함수 종료
-    }
 
     const highPriority = highPriorityColumn.querySelector(".schedule-items");
     const mediumPriority =
       mediumPriorityColumn.querySelector(".schedule-items");
     const lowPriority = lowPriorityColumn.querySelector(".schedule-items");
 
-    // 일정 표시 영역 초기화
     highPriority.innerHTML = "";
     mediumPriority.innerHTML = "";
     lowPriority.innerHTML = "";
 
-    // 일정 렌더링 - 정렬된 배열 사용
-    sortedSchedules.forEach((schedule) => {
+    schedules.forEach((schedule) => {
+      const progressClass =
+        schedule.progress === "done" ? "progress-done" : "progress-doing";
       const scheduleItem = document.createElement("div");
-      scheduleItem.className = "schedule-item";
+      scheduleItem.className = `schedule-item ${progressClass}`;
       scheduleItem.setAttribute("draggable", "true");
       scheduleItem.dataset.id = schedule.id;
       scheduleItem.dataset.priority = schedule.priority;
 
-      // ★ 전체 진행상황에 따라 줄 색상 클래스 추가
-      if (schedule.progress === "done") {
-        scheduleItem.classList.add("progress-done");
-      } else {
-        scheduleItem.classList.add("progress-doing");
-      }
+      // 작성자 정보 찾기
+      const member = members.find((m) => m.uid === schedule.userId);
+      const email = member ? member.email : "알 수 없음";
+      const role = member ? member.role : "";
 
-      // 일정 날짜와 시간을 보기 좋게 포맷팅
+      // 날짜/시간 포맷
       const scheduleDate = new Date(schedule.date);
       const formattedDate = scheduleDate.toLocaleDateString("ko-KR", {
         year: "numeric",
         month: "long",
         day: "numeric",
       });
-
       let displayText = "";
       if (schedule.hasTime) {
         const formattedTime = scheduleDate.toLocaleTimeString("ko-KR", {
@@ -215,36 +233,36 @@ export function render(container) {
         displayText = `<strong>${schedule.title}</strong> - ${formattedDate}`;
       }
 
+      // ★ 작성자 이메일과 직책 표시 추가
       scheduleItem.innerHTML = `
         <div class="schedule-drag-handle">
-          <span class="drag-icon">☰</span> <!-- 드래그 핸들 아이콘 -->
+          <span class="drag-icon">☰</span>
         </div>
         <p>${displayText}</p>
+        <div class="schedule-meta" style="font-size:0.95em;color:#888;">
+          <span>${email}</span>
+          ${role ? `<span style="margin-left:0.5em;">[${role}]</span>` : ""}
+        </div>
         <button class="delete-button">Delete</button>
       `;
 
-      // 삭제 버튼
       const deleteButton = scheduleItem.querySelector(".delete-button");
-
       deleteButton.addEventListener("click", async (e) => {
-        // 이벤트 전파 중지
         e.stopPropagation();
-
         try {
           deleteButton.disabled = true;
           await deleteSchedule(schedule.id);
           scheduleItem.remove();
           clearErrorMessage();
         } catch (error) {
-          console.error("Error deleting schedule:", error);
           deleteButton.disabled = false;
           errorMessageDiv.textContent = getErrorMessage(error);
         }
       });
 
-      // 일정 클릭 시 모달 열기 (개인 플래너이므로 members 없이)
+      // 일정 클릭 시 모달 열기
       scheduleItem.addEventListener("click", () => {
-        openScheduleModal(schedule, null);
+        openScheduleModal(schedule, null, members);
       });
 
       // 우선순위별 배치
@@ -257,31 +275,18 @@ export function render(container) {
       }
     });
 
-    // 드래그 앤 드롭 초기화
     initDragAndDrop("High-priority");
     initDragAndDrop("Medium-priority");
     initDragAndDrop("Low-priority");
   }
 
-  // 실시간 리스닝 설정
-  function setupSchedulesListener() {
-    // 리스너가 없을 때만 설정
-    if (!unsubscribeListener) {
-      unsubscribeListener = listenToSchedules((schedules) => {
-        // 데이터가 실제로 변경된 경우만 UI 업데이트
-        const schedulesJSON = JSON.stringify(schedules);
-        if (schedulesJSON !== JSON.stringify(cachedSchedules)) {
-          cachedSchedules = JSON.parse(schedulesJSON);
-          renderSchedules(cachedSchedules);
-          clearErrorMessage(); // 데이터 변경 시 에러 메시지 초기화
-        }
-      });
-    }
-  }
-
-  // 데이터 리스닝 시작
   setupSchedulesListener();
 
-  // 일정 불러오기
-  getMySchedules();
+  // cleanup 함수 반환
+  return function cleanup() {
+    if (unsubscribeListener) {
+      unsubscribeListener();
+      unsubscribeListener = null;
+    }
+  };
 }

@@ -1,9 +1,91 @@
 /* 채팅 관련 스타일 */
-#chat-box {
-  background-color: #f9f9f9;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 1rem;
-  max-width: 600px;
+.chat-container {
+  width: 100%;
+  max-width: 800px;
   margin: 0 auto;
+  padding: 1rem;
+  background: #fff;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+#group-chat-list,
+#chat-list {
+  min-height: 300px;
+  max-height: 500px;
+  overflow-y: auto;
+  background: #f6f8fa;
+  border-radius: 10px;
+  padding: 1.2rem;
+  margin-bottom: 1.2rem;
+  font-size: 1.05rem;
+}
+
+#group-chat-list ul,
+#chat-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#group-chat-list li,
+#chat-list li {
+  margin-bottom: 1rem;
+  padding: 0.9rem 1.2rem;
+  background: #e9f2ff;
+  border-radius: 8px;
+  font-size: 1.05rem;
+}
+
+#group-chat-list li.me,
+#chat-list li.me {
+  background: #d1e7dd;
+  text-align: right;
+}
+
+.chat-meta {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 0.2rem;
+}
+
+#group-chat-form,
+#chat-form {
+  display: flex;
+  gap: 0.7rem;
+}
+
+#chat-message,
+#group-chat-form input[type="text"] {
+  flex: 1;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1.1rem;
+}
+
+#group-chat-form button,
+#chat-form button {
+  padding: 1rem 1.5rem;
+  border-radius: 6px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#group-chat-form button:hover,
+#chat-form button:hover {
+  background: #0056b3;
+}
+
+.no-message {
+  color: #888;
+  text-align: center;
+  padding: 2rem 0;
+  font-style: italic;
 }
